@@ -14,27 +14,31 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string _targetIp = "127.0.0.1";
     [ObservableProperty] private string _newMessageText = "";
     [ObservableProperty] private string _statusText = "Ready";
-    
-    // Identity Properties
-    [ObservableProperty] private string _myUserName = "User" + Random.Shared.Next(100, 999);
-    [ObservableProperty] private string _remotePartnerName = "Waiting for friend...";
+    [ObservableProperty] private string _myUserName = "User" + Random.Shared.Next(10, 99);
 
+    // This collection powers the Dark Green Sidebar
     public ObservableCollection<ChatMessage> ChatHistory { get; } = new();
+    public ObservableCollection<string> ConnectedUsers { get; } = new();
 
     public MainWindowViewModel()
     {
-        // Listen for messages
+        // 1. Listen for new messages
         _chatService.MessageReceived += (user, text) => 
             Avalonia.Threading.Dispatcher.UIThread.Post(() => 
                 ChatHistory.Add(new ChatMessage { User = user, Text = text }));
 
-        // Listen for status updates
+        // 2. Listen for status updates (e.g., "Connected")
         _chatService.StatusChanged += (status) => 
             StatusText = status;
 
-        // Listen for the "Handshake" to get the friend's name
+        // 3. Listen for when someone joins to add them to the Sidebar
         _chatService.FriendJoined += (name) => 
-            RemotePartnerName = name;
+            Avalonia.Threading.Dispatcher.UIThread.Post(() => {
+                if (!ConnectedUsers.Contains(name)) 
+                {
+                    ConnectedUsers.Add(name);
+                }
+            });
     }
 
     [RelayCommand]
@@ -60,10 +64,24 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (!string.IsNullOrWhiteSpace(NewMessageText))
         {
+            // Send to everyone else
             await _chatService.SendBroadcast(NewMessageText);
-            ChatHistory.Add(new ChatMessage { User = MyUserName, Text = NewMessageText });
+            
+            // Add to our own screen
+            ChatHistory.Add(new ChatMessage { User = "You", Text = NewMessageText });
             NewMessageText = string.Empty;
         }
+    }
+
+    [RelayCommand]
+    public void Leave()
+    {
+        _chatService.Disconnect();
+        
+        // Reset the UI
+        ChatHistory.Clear();
+        ConnectedUsers.Clear();
+        StatusText = "Disconnected.";
     }
 }
 

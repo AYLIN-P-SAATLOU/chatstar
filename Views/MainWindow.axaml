@@ -3,18 +3,30 @@
         xmlns:vm="using:chatstar.ViewModels"
         x:DataType="vm:MainWindowViewModel"
         x:Class="chatstar.Views.MainWindow"
-        Title="ChatStar" Height="450" Width="550"
+        Title="ChatStar - Group Room" 
+        Height="450" Width="600"
+        Topmost="True"
         WindowStartupLocation="CenterScreen">
 
-    <Grid RowDefinitions="Auto, *, Auto" ColumnDefinitions="*, 150" Margin="10">
+    <Grid RowDefinitions="Auto, *, Auto" ColumnDefinitions="*, 160" Margin="10">
         
         <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8" Margin="0,0,0,15">
-            <TextBlock Text="My Name:" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Text="Name:" VerticalAlignment="Center" FontSize="12" FontWeight="Bold"/>
             <TextBox Text="{Binding MyUserName}" Width="100" Watermark="Name"/>
+            
             <Separator Width="10" Background="Transparent"/>
+            
             <TextBox Text="{Binding TargetIp}" Width="120" Watermark="IP Address"/>
-            <Button Content="Host" Command="{Binding StartServerCommand}" Background="DarkGreen" Foreground="White"/>
-            <Button Content="Join" Command="{Binding ConnectCommand}" Background="DarkBlue" Foreground="White"/>
+            
+            <Button Content="Host" Command="{Binding StartServerCommand}" 
+                    Background="DarkGreen" Foreground="White" Width="60" HorizontalContentAlignment="Center"/>
+            
+            <Button Content="Join" Command="{Binding ConnectCommand}" 
+                    Background="DarkBlue" Foreground="White" Width="60" HorizontalContentAlignment="Center"/>
+            
+            <Button Content="Leave" Command="{Binding LeaveCommand}" 
+                    Background="DarkRed" Foreground="White" Width="70" 
+                    HorizontalContentAlignment="Center" FontWeight="Bold"/>
         </StackPanel>
 
         <Border Grid.Row="1" Grid.Column="0" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="5">
@@ -32,21 +44,25 @@
             </ListBox>
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" Padding="12" Background="#F8F9FA" CornerRadius="5" BorderBrush="#EEEEEE" BorderThickness="1">
-            <StackPanel Spacing="10">
-                <TextBlock Text="PARTNER" FontSize="10" FontWeight="Bold" Foreground="Gray"/>
-                <TextBlock Text="{Binding RemotePartnerName}" FontWeight="Bold" Foreground="DarkGreen" TextWrapping="Wrap"/>
-                
-                <Separator Height="1" Background="#DDDDDD"/>
-                
-                <TextBlock Text="CONNECTION" FontSize="10" FontWeight="Bold" Foreground="Gray"/>
-                <TextBlock Text="{Binding TargetIp}" FontSize="12"/>
+        <Border Grid.Row="1" Grid.Column="1" Margin="12,0,0,0" Background="#1B5E20" CornerRadius="8">
+            <StackPanel Margin="12">
+                <TextBlock Text="ROOM MEMBERS" Foreground="White" FontWeight="Black" FontSize="11" Margin="0,0,0,12"/>
+                <ListBox ItemsSource="{Binding ConnectedUsers}" Background="Transparent" BorderThickness="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="0,2">
+                                <Ellipse Width="8" Height="8" Fill="#4CAF50" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding}" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </StackPanel>
         </Border>
 
         <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,15,0,0">
             <Grid ColumnDefinitions="*, Auto">
-                <TextBox Grid.Column="0" Text="{Binding NewMessageText}" Watermark="Type a message..." AcceptsReturn="False"/>
+                <TextBox Grid.Column="0" Text="{Binding NewMessageText}" Watermark="Type a message..."/>
                 <Button Grid.Column="1" Content="Send" Command="{Binding SendMessageCommand}" IsDefault="True" Margin="8,0,0,0" Width="80"/>
             </Grid>
             <TextBlock Text="{Binding StatusText}" Foreground="#888888" FontSize="11" FontStyle="Italic" Margin="2,5,0,0"/>
