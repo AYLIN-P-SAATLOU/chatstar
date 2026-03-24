@@ -29,30 +29,58 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task StartServer() => await _chatService.StartHosting(8080);
+    public async Task StartServer()
+    {
+        try 
+        {
+            await _chatService.StartHosting(8080);
+        }
+        catch (Exception ex)
+        {
+            StatusText = "Host Error: " + ex.Message;
+        }
+    }
 
     [RelayCommand]
-    public async Task Connect() => await _chatService.ConnectTo(TargetIp, 8080);
+    public async Task Connect()
+    {
+        try 
+        {
+            StatusText = "Connecting to " + TargetIp + "...";
+            await _chatService.ConnectTo(TargetIp, 8080);
+        }
+        catch (Exception)
+        {
+            StatusText = "Error: Could not find Host. Check IP!";
+        }
+    }
 
     [RelayCommand]
     public async Task SendMessage()
     {
         if (!string.IsNullOrWhiteSpace(NewMessageText))
         {
-            // We need to capture the text before clearing the box
-            string textToSend = NewMessageText;
-            
-            await _chatService.SendBroadcast(textToSend);
-            
-            ChatHistory.Add(new ChatMessage { User = "You", Text = textToSend });
-            NewMessageText = string.Empty;
+            try 
+            {
+                string textToSend = NewMessageText;
+                
+                await _chatService.SendBroadcast(textToSend);
+                
+                ChatHistory.Add(new ChatMessage { User = "You", Text = textToSend });
+                NewMessageText = string.Empty;
+            }
+            catch (Exception)
+            {
+                StatusText = "Failed to send message.";
+            }
         }
     }
 }
 
-// This was missing! The View needs to know what a 'ChatMessage' is.
+// Updated Data Model with Timestamps for extra "Pro" points
 public class ChatMessage
 {
     public string? User { get; set; }
     public string? Text { get; set; }
+    public string Time { get; set; } = DateTime.Now.ToString("HH:mm");
 }
