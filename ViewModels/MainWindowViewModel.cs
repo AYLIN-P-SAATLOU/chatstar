@@ -14,45 +14,45 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string _targetIp = "127.0.0.1";
     [ObservableProperty] private string _newMessageText = "";
     [ObservableProperty] private string _statusText = "Ready";
+    
+    // Identity Properties
+    [ObservableProperty] private string _myUserName = "User" + Random.Shared.Next(100, 999);
+    [ObservableProperty] private string _remotePartnerName = "Waiting for friend...";
 
     public ObservableCollection<ChatMessage> ChatHistory { get; } = new();
 
     public MainWindowViewModel()
     {
-        // Listen to the Service's events
+        // Listen for messages
         _chatService.MessageReceived += (user, text) => 
             Avalonia.Threading.Dispatcher.UIThread.Post(() => 
                 ChatHistory.Add(new ChatMessage { User = user, Text = text }));
 
+        // Listen for status updates
         _chatService.StatusChanged += (status) => 
             StatusText = status;
+
+        // Listen for the "Handshake" to get the friend's name
+        _chatService.FriendJoined += (name) => 
+            RemotePartnerName = name;
     }
 
     [RelayCommand]
     public async Task StartServer()
     {
-        try 
-        {
-            await _chatService.StartHosting(8080);
-        }
-        catch (Exception ex)
-        {
-            StatusText = "Host Error: " + ex.Message;
-        }
+        try { await _chatService.StartHosting(8080, MyUserName); }
+        catch (Exception ex) { StatusText = "Host Error: " + ex.Message; }
     }
 
     [RelayCommand]
     public async Task Connect()
     {
         try 
-        {
-            StatusText = "Connecting to " + TargetIp + "...";
-            await _chatService.ConnectTo(TargetIp, 8080);
+        { 
+            StatusText = "Connecting...";
+            await _chatService.ConnectTo(TargetIp, 8080, MyUserName); 
         }
-        catch (Exception)
-        {
-            StatusText = "Error: Could not find Host. Check IP!";
-        }
+        catch (Exception) { StatusText = "Error: Check IP!"; }
     }
 
     [RelayCommand]
@@ -60,24 +60,13 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (!string.IsNullOrWhiteSpace(NewMessageText))
         {
-            try 
-            {
-                string textToSend = NewMessageText;
-                
-                await _chatService.SendBroadcast(textToSend);
-                
-                ChatHistory.Add(new ChatMessage { User = "You", Text = textToSend });
-                NewMessageText = string.Empty;
-            }
-            catch (Exception)
-            {
-                StatusText = "Failed to send message.";
-            }
+            await _chatService.SendBroadcast(NewMessageText);
+            ChatHistory.Add(new ChatMessage { User = MyUserName, Text = NewMessageText });
+            NewMessageText = string.Empty;
         }
     }
 }
 
-// Updated Data Model with Timestamps for extra "Pro" points
 public class ChatMessage
 {
     public string? User { get; set; }
