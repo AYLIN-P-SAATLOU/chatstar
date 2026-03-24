@@ -16,7 +16,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string _statusText = "Ready";
     [ObservableProperty] private string _myUserName = "User" + Random.Shared.Next(10, 99);
 
-    // This collection powers the Dark Green Sidebar
+
     public ObservableCollection<ChatMessage> ChatHistory { get; } = new();
     public ObservableCollection<string> ConnectedUsers { get; } = new();
 
@@ -64,10 +64,10 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (!string.IsNullOrWhiteSpace(NewMessageText))
         {
-            // Send to everyone else
+            
             await _chatService.SendBroadcast(NewMessageText);
             
-            // Add to our own screen
+            
             ChatHistory.Add(new ChatMessage { User = "You", Text = NewMessageText });
             NewMessageText = string.Empty;
         }
@@ -78,7 +78,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         _chatService.Disconnect();
         
-        // Reset the UI
+        
         ChatHistory.Clear();
         ConnectedUsers.Clear();
         StatusText = "Disconnected.";

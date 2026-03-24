@@ -28,7 +28,7 @@ public class ChatService
             var client = await _listener.AcceptTcpClientAsync();
             _clients.Add(client);
             
-            // Tell the new person who the Host is
+            
             var writer = new StreamWriter(client.GetStream()) { AutoFlush = true };
             await writer.WriteLineAsync($"NAME_IDENTIFY:{myName}");
 
@@ -42,7 +42,7 @@ public class ChatService
         await client.ConnectAsync(ip, port);
         _clients.Add(client);
 
-        // Tell the Host who we are
+        
         var writer = new StreamWriter(client.GetStream()) { AutoFlush = true };
         await writer.WriteLineAsync($"NAME_IDENTIFY:{myName}");
 
@@ -61,7 +61,7 @@ public class ChatService
                 var msg = await reader.ReadLineAsync();
                 if (msg == null) break;
 
-            // 1. Check if this is a "Handshake" (Name Swap)
+            
                 if (msg.StartsWith("NAME_IDENTIFY:"))
                 {
                     remoteUser = msg.Replace("NAME_IDENTIFY:", "");
@@ -69,8 +69,7 @@ public class ChatService
                 }
                 else
                 {
-                // 2. Handle a regular message
-                // If the message already has a ": ", it was relayed by the host
+
                     if (msg.Contains(": ")) 
                     {
                         var parts = msg.Split(": ", 2);
@@ -78,16 +77,14 @@ public class ChatService
                     } 
                     else 
                     {
-                    // It's a direct message from a client to the host
+                    
                         MessageReceived?.Invoke(remoteUser, msg);
                     }
 
-                // 3. THE RELAY LOGIC (The "Post Office" fix)
-                // If I am the Host (_listener is not null), I broadcast to everyone else.
+                
                     if (_listener != null) 
                     {
-                    // CRITICAL: We pass the 'client' here so the sender is EXCLUDED 
-                    // from the broadcast. This stops the "Double Message" bug.
+                    
                         await SendBroadcast($"{remoteUser}: {msg}", client); 
                     }
                 }
@@ -107,7 +104,7 @@ public class ChatService
     {
         foreach (var client in _clients.Where(c => c.Connected))
         {
-            // If this client is the one who sent the message, skip them!
+            
             if (client == excludeClient) continue;
 
             try {
@@ -121,11 +118,11 @@ public class ChatService
     {
         try
         {
-        // Stop the server if we are hosting
+        
             _listener?.Stop();
             _listener = null;
 
-        // Close all active connections
+        
             foreach (var client in _clients)
             {
                 client.Close();
