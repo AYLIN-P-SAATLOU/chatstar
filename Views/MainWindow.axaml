@@ -3,32 +3,50 @@
         xmlns:vm="using:chatstar.ViewModels"
         x:DataType="vm:MainWindowViewModel"
         x:Class="chatstar.Views.MainWindow"
-        Title="ChatStar" Height="450" Width="400">
+        Title="ChatStar" Height="450" Width="400"
+        WindowStartupLocation="CenterScreen">
 
     <Grid RowDefinitions="Auto, *, Auto" Margin="10">
         
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="5" Margin="0,0,0,10">
             <TextBox Watermark="Enter IP" Text="{Binding TargetIp}" Width="150"/>
-            <Button Content="Host" Command="{Binding StartServerCommand}" Background="DarkGreen"/>
-            <Button Content="Join" Command="{Binding ConnectCommand}" Background="DarkBlue"/>
+            <Button Content="Host" Command="{Binding StartServerCommand}" Foreground="White" Background="DarkGreen"/>
+            <Button Content="Join" Command="{Binding ConnectCommand}" Foreground="White" Background="DarkBlue"/>
         </StackPanel>
 
-        <ListBox Grid.Row="1" ItemsSource="{Binding ChatHistory}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding User}" FontWeight="Bold" Margin="0,0,5,0"/>
-                        <TextBlock Text=": "/>
-                        <TextBlock Text="{Binding Text}"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" CornerRadius="4">
+            <ListBox ItemsSource="{Binding ChatHistory}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="2">
+                            <TextBlock Text="{Binding User}" Foreground="CornflowerBlue" FontWeight="Bold" Margin="0,0,5,0"/>
+                            <TextBlock Text=": "/>
+                            <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
 
-        <Grid Grid.Row="2" ColumnDefinitions="*, Auto" Margin="0,10,0,0">
-            <TextBox Grid.Column="0" Text="{Binding NewMessageText}" Watermark="Type here..."/>
-            <Button Grid.Column="1" Content="Send" Command="{Binding SendMessageCommand}" Margin="5,0,0,0"/>
-        </Grid>
+        <StackPanel Grid.Row="2" Margin="0,10,0,0">
+            <Grid ColumnDefinitions="*, Auto">
+                <TextBox Grid.Column="0" 
+                         Text="{Binding NewMessageText}" 
+                         Watermark="Type here..."
+                         AcceptsReturn="False"/>
+                <Button Grid.Column="1" 
+                        Content="Send" 
+                        Command="{Binding SendMessageCommand}" 
+                        IsDefault="True"
+                        Margin="5,0,0,0"/>
+            </Grid>
+            
+            <TextBlock Text="{Binding StatusText}" 
+                       Foreground="Gray" 
+                       FontSize="11" 
+                       FontStyle="Italic" 
+                       Margin="0,5,0,0"/>
+        </StackPanel>
         
     </Grid>
 </Window>
