@@ -36,5 +36,5 @@ File written successfully.
    dotnet run
 ```
 
-##To test the group chat functionality locally, open multiple instances of the terminal and run dotnet run inside each.
+To test the group chat functionality locally, open multiple instances of the terminal and run dotnet run inside each.
 Designate one instance as the Host and the others as clients connecting to 127.0.0.1. 
